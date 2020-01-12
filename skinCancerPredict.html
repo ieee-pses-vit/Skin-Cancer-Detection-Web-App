@@ -1,0 +1,504 @@
+<html>
+
+<head>
+
+    <title>17BIS0091-SkinCancerDetection</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+        integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+    <meta name="viewport" content="width=device-width. initial-scale=1">
+    <style>
+        #selected-image {
+            display: none;
+        }
+
+        #userForm {
+            display: none;
+        }
+
+        body {
+            background-color: antiquewhite;
+        }
+
+        .formFill {
+            display: block;
+            /* background: rgba(0, 0, 0, 0.3); */
+            color: brown;
+            position: relative;
+            left: 50%;
+            height: 550px;
+            width: 510px;
+            transform: translate(-50%, -50%);
+
+        }
+    </style>
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <script>
+        function enableImage() {
+            document.getElementById("selected-image").style.display = "block";
+        }
+        function enableForm() {
+            document.getElementById("userForm").style.display = "block";
+        }
+
+    </script>
+</head>
+
+<body onload="load()">
+    <main>
+        <div class="jumbotron text-center" style="margin-bottom:0;background-color:burlywood;">
+            <h1>Skin Cancer Detection App</h1>
+            <!--<h6>Team Members</h6>
+                <h7>1. Shobhit Arora: 17BIS0049</h7><br>
+                <h7>2. Poulami Paul: 17BIS0082</h7><br>
+                <h7>3. Aryan Mehta: 17BIS0091</h7><br>
+                <h7>4. Aksh Gurnain Singh: 17BIS0132</h7> -->
+        </div>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-12">
+                    <div class="progress progress-bar progress-bar-striped progress-bar-animated mb-2">Loading Model
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <input id="image-selector" class="form-control border-0" type="file" onclick="enableImage()"
+                        style="background-color: antiquewhite;">
+                </div>
+                <div class="col-6">
+                    <button id="predict-button" class="btn btn-dark float-right">Predict</button>
+                </div>
+            </div>
+            <hr>
+
+            <div class="row">
+                <div class="col">
+                    <h2 class="ml-3">Predictions</h2>
+                    <ol id="prediction-list"></ol>
+                </div>
+            </div>
+
+            <hr>
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="ml-3">Image</h2>
+                    <img height="224" width="224" id="selected-image" class="ml-3" src="" />
+                </div>
+            </div>
+            <hr>
+
+            <br><br>
+            <div class="row">
+                <div class="col-12">
+                    <button onclick="enableForm()" id="generateForm" class="btn btn-dark float-left "
+                        style="background-color:brown;">Generate Form</button>
+                
+                    <button onclick="result()" id="result" class="btn btn-dark float-right"
+                        style="background-color:brown;">Create Report</button>
+                </div>
+            </div>
+
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
+    <script src="cancer_classes.js"></script>
+    <script src="predict.js"></script>
+    <!-- #Firebase Things -->
+
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
+
+    <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-analytics.js"></script>
+
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase-database.js"></script>
+
+    <!-- The surrounding HTML is left untouched by FirebaseUI.
+            Your app may use that space for branding, controls and other customizations.-->
+
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyArL9WuBVYY04Nmt519xi08wnF6muZDIao",
+            authDomain: "skin-cancer-detection-e1c4c.firebaseapp.com",
+            databaseURL: "https://skin-cancer-detection-e1c4c.firebaseio.com",
+            projectId: "skin-cancer-detection-e1c4c",
+            storageBucket: "skin-cancer-detection-e1c4c.appspot.com",
+            messagingSenderId: "548043525655",
+            appId: "1:548043525655:web:aacd3504e6608077775652",
+            measurementId: "G-WKRX8LWNQW"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+
+    </script>
+    <script>
+        var signedInUserName = "";
+        function load() {
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    // User is signed in.
+                    var user = firebase.auth().currentUser;
+                    var name, email, photoUrl, uid, emailVerified;
+                    if (user != null) {
+                        name = user.displayName;
+                        email = user.email;
+                        //photoUrl = user.photoURL;
+                        emailVerified = user.emailVerified;
+                        uid = user.uid;  // The user's ID, unique to the Firebase project. Do NOT use
+                        // this value to authenticate with your backend server, if
+                        // you have one. Use User.getToken() instead.
+
+                        //alert(name + " " + email + " " + emailVerified + " " + uid+" "+photoUrl);
+
+                    }
+
+                    document.getElementById("nameId").value = name;
+                    document.getElementById("emailId").value = email;
+
+                    //Realtime Database
+                    /* function Submit(){
+                    function writeUserData(uid, name, email) {
+                    firebase.database().ref('users/' + uid).set({
+                        username: name,
+                        email: email,
+                    });
+                    alert(name);
+                    }
+                    }
+                     */
+                }
+                else {
+                    // No user is signed in.
+                    //alert("not signed in");
+                }
+
+            });
+
+        }
+    </script>
+    <script type="text/javascript">
+        function formValidation() {
+
+            var a = 0;
+
+            var v1 = document.forms["regForm"]["nameId"].value;
+            var vp1 = /^[a-zA-Z ]{2,30}$/;
+            if (v1 == "") {
+                a = 1;
+                document.getElementById("i10").innerHTML = "<font color=red>Name must contain atleast 2 characters</font>";
+            }
+            if (vp1.test(v1) == false) {
+                a = 1;
+                document.getElementById("i10").innerHTML = "<font color=red>Name must contain atleast 2 characters</font>";
+            }
+            else {
+                document.getElementById("i10").innerHTML = "";
+            }
+
+            var v2 = document.forms["regForm"]["ageId"].value;
+            var vp2 = /^\d{1,3}$/;
+            if (vp2.test(v2) == false) {
+                a = 1;
+                document.getElementById("i3").innerHTML = "<font color=red>Invalid Age</font>";
+            }
+            else {
+                document.getElementById("i3").innerHTML = "";
+            }
+
+            var v5 = document.forms["regForm"]["emailId"].value;
+            var vp5 = /^\w+@\w+\.\w{2,3}$/;
+            if (vp5.test(v5) == false) {
+                a = 1;
+                document.getElementById("i4").innerHTML = "<font color=red>Email ID is invalid</font>";
+            }
+            else {
+                document.getElementById("i4").innerHTML = "";
+            }
+
+            var v6 = document.forms["regForm"]["mobile"].value;
+            var vp6 = /^\d{10}$/;
+            if (vp6.test(v6) == false) {
+                a = 1;
+                document.getElementById("i5").innerHTML = "<font color=red>Mobile Number must be a 10 digit number</font>";
+            }
+            else {
+                document.getElementById("i5").innerHTML = "";
+            }
+
+            if (a == 1) {
+                return false;
+            }
+            else {
+                //alert("Your response has been submited");
+                return true;
+            }
+
+        }
+    </script>
+
+    <br><br><br><br><br><br><br><br><br>
+    <script>
+        function press() {
+
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    // User is signed in.
+                    var user = firebase.auth().currentUser;
+                    var name, email, photoUrl, uid, emailVerified;
+                    if (user != null) {
+                        name = user.displayName;
+                        email = user.email;
+                        //photoUrl = user.photoURL;
+                        emailVerified = user.emailVerified;
+                        uid = user.uid;
+
+                    }
+                    //console.log(document.getElementById("genderId").value);
+                    var database = firebase.database();
+                    database = database.ref('users/' + uid);
+                    $('#form1').submit(function (e) {
+                        e.preventDefault();
+                        var newMessageRef = database.push();
+                        newMessageRef.set({
+                            Name: name,
+                            Email: email,
+                            DOB: document.getElementById("dobId").value,
+                            Gender: document.getElementById("genderId").value,
+                            Age: document.getElementById("ageId").value,
+                            Mobile: document.getElementById("numId").value
+                        });
+                        $('#form1')[0].reset();
+                    });
+
+                    var db = firebase.database();
+                    var ref = db.ref('users/' + uid);
+                    ref.on('value', gotData, errData);
+
+                    function gotData(data) {
+                        var info = data.val();
+                        var keys = Object.keys(info);
+                        //console.log("KEYS:",keys);
+
+                        var i = keys.length - 1;
+                        var k = keys[i];
+                        var name = info[k].Name;
+                        var age = info[k].Age;
+                        var email = info[k].Email;
+                        var dob = info[k].DOB;
+                        var gender = info[k].Gender;
+                        var mobile = info[k].Mobile;
+
+                        sessionStorage.setItem('NAME', name);
+                        //console.log(name,age,email,gender,mobile,dob);   
+                    }
+                    function errData(err) {
+                        console.log('Error!');
+                        console.log(err);
+
+                    }
+                }
+
+                /*   var changeRef = firebase.database().ref("users/"+uid);
+                  changeRef.on("child_changed", function(data) {
+                  var info = data.val();
+                  console.log("Name: " + info.Name);
+                  console.log("Age: " + info.Age);
+                  console.log("Email: " + info.Email);
+                  console.log("Gender" + info.Gender);
+                  console.log("Mobile: " + info.Mobile);
+              });
+  
+              var childAddedRef=firebase.database();
+              childAddedRef.ref().on("child_added", function(snapshot, prevChildKey) {
+              var info = snapshot.val();
+                  console.log("Name: " + info.Name);
+                  console.log("Age: " + info.Age);
+                  console.log("Email: " + info.Email);
+                  console.log("Gender" + info.Gender);
+                  console.log("Mobile: " + info.Mobile);
+                  console.log("Previous Post ID: " + prevChildKey);
+              });
+                  }}); */
+
+
+
+            });
+            var results = "";
+            for (var i = 0; i < 7; i++) {
+                results = document.getElementsByTagName('li')[i].innerHTML;
+                console.log(results);
+            }
+            /* var img=document.getElementsByTagName('selected-image')[0].innerHTML;
+            console.log(img); */
+
+        }
+
+    </script>
+
+    <script>
+        function result() {
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    // User is signed in.
+                    var user = firebase.auth().currentUser;
+                    var name, email, photoUrl, uid, emailVerified;
+                    if (user != null) {
+                        name = user.displayName;
+                        email = user.email;
+                        //photoUrl = user.photoURL;
+                        emailVerified = user.emailVerified;
+                        uid = user.uid;
+
+                    }
+                    var db = firebase.database();
+                    var ref = db.ref('users/' + uid);
+                    ref.on('value', gotData, errData);
+
+                    function gotData(data) {
+                        var info = data.val();
+                        var keys = Object.keys(info);
+                        //console.log("KEYS:",keys);
+
+                        var i = keys.length - 1;
+                        var k = keys[i];
+                        var name = info[k].Name;
+                        var age = info[k].Age;
+                        var email = info[k].Email;
+                        var dob = info[k].DOB;
+                        var gender = info[k].Gender;
+                        var mobile = info[k].Mobile;
+
+                        sessionStorage.setItem('NAME', name);
+                        sessionStorage.setItem('AGE', age);
+                        sessionStorage.setItem('EMAIL', email);
+                        sessionStorage.setItem('DOB', dob);
+                        sessionStorage.setItem('GENDER', gender);
+                        sessionStorage.setItem('MOBILE', mobile);
+
+                        console.log(name, age, email, gender, mobile, dob);
+                    }
+                    function errData(err) {
+                        console.log('Error!');
+                        console.log(err);
+
+                    }
+                }
+            });
+            function getBase64Image(img) {
+                var canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+
+                var dataURL = canvas.toDataURL("image/png");
+                
+                return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+            }
+
+
+            var results = "";
+            skinImage = document.getElementById("selected-image");
+            imgData = getBase64Image(skinImage);
+            sessionStorage.setItem("sImage", imgData);
+
+
+            for (var i = 0; i < 7; i++) {
+                results = document.getElementsByTagName('li')[i].innerHTML;
+                //console.log(results);
+                //console.log("prediciton" + (i + 1));
+                sessionStorage.setItem("prediciton" + (i + 1), results);
+            }
+            
+            setTimeout(function(){ alert("After 5 seconds!"); }, 5000);
+
+            window.location.assign('results.html');
+        }
+
+
+    </script>
+
+
+
+    <div class="container mt-5">
+        <div id="userForm">
+            <div class="formFill">
+                <form name="regForm" onsubmit="return formValidation()" method="post" autocomplete="on" id="form1">
+                    <caption>
+                        <center>
+                            <h1>Patient Details</h1><BR>
+                        </center>
+                    </caption>
+                    <table border="0" align="center" cellspacing=0 cellpadding=9>
+                        <tr>
+                            <td>Name</td>
+                            <td><input type="text" id="nameId" name="nameId" autofocus disabled></td>
+                            <td>
+                                <div id="i10"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>DOB</td>
+                            <td><input type="date" name="dobId" id="dobId"></td>
+                            <div id="i2"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Age</td>
+                            <td><input type="number" id="ageId" name="ageId"></td>
+                            <td>
+                                <div id="i3"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Gender</td>
+                            <td><select id="genderId" name="genderId">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Rather_not_say">Rather Not Say</option>
+                                </select></td>
+                            <td>
+                                <div id="i6"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Email Id</td>
+                            <td><input type="email" id="emailId" name="emailId" disabled></td>
+                            <td>
+                                <div id="i4"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Phone Number</td>
+                            <td><input type="number" id="numId" name="mobile" maxlength="10" minlength="10"></td>
+                            <td>
+                                <div id="i5"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan=2>
+                                <center><input type="submit" onclick="press()">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br><br><br><br><br>
+</body>
+
+</html>

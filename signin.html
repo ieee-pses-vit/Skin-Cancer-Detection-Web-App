@@ -1,0 +1,217 @@
+    <html>
+    <head>
+        <title>17BIS0091-SkinCancerDetection</title>
+
+        <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+        <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+        <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+            integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+
+        <meta name="viewport" content="width=device-width. initial-scale=1">
+        <style>
+            #selected-image{
+                display:none;
+            }
+            main{
+                display: none;
+            }
+            body{
+                background-color:antiquewhite;
+            }
+            #print{
+            display:block;
+        }
+        </style>
+        <script>
+            function enableImage(){
+                document.getElementById("selected-image").style.display="block";
+            }
+            
+        </script>
+
+    </head>
+    <body> 
+        
+        <main id="main">
+            <div class="jumbotron text-center" style="margin-bottom:0;background-color: burlywood;">
+                <h1>Skin Cancer Detection App</h1>
+                
+            </div>
+            <br><br>
+            <div id="firebaseui-auth-container"></div>
+            <div id="loader">Loading...</div>
+
+
+        <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-app.js"></script>
+
+        <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+        <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-analytics.js"></script>
+
+        <!-- Add Firebase products that you want to use -->
+        <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-firestore.js"></script>  
+        <!-- The surrounding HTML is left untouched by FirebaseUI.
+            Your app may use that space for branding, controls and other customizations.-->
+           
+
+        <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyArL9WuBVYY04Nmt519xi08wnF6muZDIao",
+            authDomain: "skin-cancer-detection-e1c4c.firebaseapp.com",
+            databaseURL: "https://skin-cancer-detection-e1c4c.firebaseio.com",
+            projectId: "skin-cancer-detection-e1c4c",
+            storageBucket: "skin-cancer-detection-e1c4c.appspot.com",
+            messagingSenderId: "548043525655",
+            appId: "1:548043525655:web:aacd3504e6608077775652",
+            measurementId: "G-WKRX8LWNQW"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+        </script>
+
+        <script>
+            var ui = new firebaseui.auth.AuthUI(firebase.auth());
+            var uiConfig = {
+            callbacks: {
+                signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+                // User successfully signed in.
+                // Return type determines whether we continue the redirect automatically
+                // or whether we leave that to developer to handle.
+                return true;
+                },
+                uiShown: function() {
+                // The widget is rendered.
+                // Hide the loader.
+                document.getElementById('loader').style.display = 'none';
+                }
+            },
+            // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
+            signInFlow: 'popup',
+            signInSuccessUrl: 'skinCancerPredict.html',
+            signInOptions: [
+                // Leave the lines as is for the providers you want to offer your users.
+                firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+                firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+                firebase.auth.GithubAuthProvider.PROVIDER_ID,
+                firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                firebase.auth.PhoneAuthProvider.PROVIDER_ID
+            ],
+            };
+
+            // The start method will wait until the DOM is loaded.
+            ui.start('#firebaseui-auth-container', uiConfig);
+            document.getElementById("main").style.display="block";
+        </script>
+
+
+        <!-- <script>
+            
+            function sign_inn(){
+                var provider = new firebase.auth.GoogleAuthProvider();
+                
+                firebase.auth().signInWithPopup(provider).then(function(result) {
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                var token = result.credential.accessToken;
+                // The signed-in user info.
+                var user = result.user;
+                alert(user);
+                // ...
+                }).catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                // The email of the user's account used.
+                var email = error.email;
+                // The firebase.auth.AuthCredential type that was used.
+                var credential = error.credential;
+                // ...
+                });
+            }
+
+            function sign_out(){
+                 
+                //SIGN-OUT
+                firebase.auth().signOut().then(function() {
+                // Sign-out successful.
+                }).catch(function(error) {
+                // An error happened.
+                });
+
+            }
+           
+        </script> -->
+        <!--
+            <div id="start">
+                <h1 id="heading">Welcome to My Awesome App</h1>
+                <div id="loader">Loading...</div>    
+                <button id="signin" onclick="sign_in()">sign-in</button>   
+            </div>
+        -->
+        <!--<script>
+            function sign_in(){
+                var ui = new firebaseui.auth.AuthUI(firebase.auth());
+                var uiConfig = {
+                    callbacks: {
+                        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+                        // User successfully signed in.
+                        // Return type determines whether we continue the redirect automatically
+                        // or whether we leave that to developer to handle.
+                        return true;
+                        },
+                        uiShown: function() {
+                        // The widget is rendered.
+                        // Hide the loader.
+                        document.getElementById('loader').style.display = 'none';
+                        }
+                    },
+                    // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
+                        signInFlow: 'popup',
+                        signInSuccessUrl: 'http://localhost/dashboard/static/skinCancerPredict.html',
+                        signInOptions: [
+                        // Leave the lines as is for the providers you want to offer your users.
+                        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                    ],
+                    // Terms of service url.
+                        //tosUrl: '<your-tos-url>',
+                    // Privacy policy url.
+                        //privacyPolicyUrl: '<your-privacy-policy-url>'
+                };
+                // The start method will wait until the DOM is loaded.
+                ui.start('#firebaseui-auth-container', uiConfig);
+
+                firebase.auth().onAuthStateChanged(function(user) {
+                    if (user) {
+                        // User is signed in.
+                        alert("signed in");
+                        document.getElementsByTagName("main")[0].style.display="block";
+                        document.getElementById("firebaseui-auth-container").style.display="block";
+                        //document.getElementById("start").style.display="none";
+                        var user = firebase.auth().currentUser;
+                        var name, email, photoUrl, uid, emailVerified;
+
+                        if (user != null) {
+                        name = user.displayName;
+                        email = user.email;
+                        photoUrl = user.photoURL;
+                        emailVerified = user.emailVerified;
+                        uid = user.uid;  // The user's ID, unique to the Firebase project. Do NOT use
+                                        // this value to authenticate with your backend server, if
+                                        // you have one. Use User.getToken() instead.
+                        alert(name+" "+email+" "+emailVerified+" "+uid)
+                        }
+                    } else {
+                        // No user is signed in.
+                        alert("not signed in");
+                    }
+                });
+            }
+        </script>-->
+    </body>
+</html>

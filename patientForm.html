@@ -1,0 +1,127 @@
+<html>
+<head>
+	<style>
+	#error{display:none;}
+	</style>
+	<style>
+	     body{
+                margin:0;
+                padding:0;
+                background-image: url("http://backgroundcheckall.com/wp-content/uploads/2017/12/background-images-for-registration-form-4.jpg");
+                background-size:cover;
+                background-position: center;
+                font-family: sans-serif; 
+                color: wheat
+            }
+            body:before{
+                content:'';
+                position:fixed;
+                width:100vw;
+                height: 100vh;
+                background-image: url("http://backgroundcheckall.com/wp-content/uploads/2017/12/background-images-for-registration-form-4.jpg");
+                background-position: center;
+                background-repeat:no-repeat;
+                background-attachment: fixed;
+                background-size: cover;
+                 filter:blur(10px);
+            }
+			.formFill{
+                display: block;
+                width: 600px;
+                height:600px;
+                background:rgba(0,0,0,0.3);
+                color:#fff;
+                top:50%;
+                left:50%;
+                position:absolute;
+                transform: translate(-50%,-50%);
+                box-sizing: border-box;
+                padding:70px 30px;
+            }
+    </style>
+    <script type="text/javascript">
+    function formValidation(){
+        
+        var a=0;
+
+		var v1=document.forms["regForm"]["nameId"].value;
+        var vp1=/^[a-zA-Z ]{2,30}$/;
+        if(v1==""){
+            a=1;
+			document.getElementById("i10").innerHTML="<font color=red>Name must contain atleast 2 characters</font>";
+        }
+		if(vp1.test(v1)==false){
+			a=1;
+			document.getElementById("i10").innerHTML="<font color=red>Name must contain atleast 2 characters</font>";
+		}
+		else{
+			document.getElementById("i10").innerHTML="";
+        }
+
+        var v2=document.forms["regForm"]["ageId"].value;
+        var vp2=/^\d{1,3}$/;
+        if(vp2.test(v2)==false){
+			a=1;
+			document.getElementById("i3").innerHTML="<font color=red>Invalid Age</font>";
+		}
+		else{
+			document.getElementById("i3").innerHTML="";
+        }
+
+		var v5=document.forms["regForm"]["emailId"].value;
+		var vp5=/^\w+@\w+\.\w{2,3}$/;
+		if(vp5.test(v5)==false){
+			a=1;
+			document.getElementById("i4").innerHTML="<font color=red>Email ID is invalid</font>";
+		}
+		else{
+			document.getElementById("i4").innerHTML="";
+		}
+
+		var v6=document.forms["regForm"]["mobile"].value;
+		var vp6=/^\d{10}$/;
+		if(vp6.test(v6)==false){
+			a=1;
+			document.getElementById("i5").innerHTML="<font color=red>Mobile Number must be a 10 digit number</font>";
+		}
+		else{
+			document.getElementById("i5").innerHTML="";
+        }
+        
+		if(a==1)
+		{
+            return false;
+		}
+		else{
+			alert("Your response has been submited");
+			return true;
+		}
+		
+    }
+    </script>
+</head>
+<body>
+        <div id="error">
+            <span><ul><li id="i1"></li><li id="i2"></li></ul></span>
+        </div>
+        <div class="formFill">
+        <form name="regForm" onsubmit="return formValidation()" method="post" autocomplete="on" id="form1">
+        <caption><center><h1>Patient Details</h1></center></caption>
+        <table border="0" align="center" cellspacing=0 cellpadding=9>
+            <tr><td>Name</td><td><input type="text" id="nameId" name="nameId" autofocus></td><td><div id="i10"></div></td></tr>
+            <tr><td>DOB</td><td><input type="date"  name="dobId"></td><div id="i2"></div></td></tr>
+            <tr><td>Age</td><td><input type="number" id="ageId" name="ageId"></td><td><div id="i3"></div></td></tr>
+            <tr><td>Gender</td><td><select id="genderId" name="genderId">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Rather_not_say">Rather Not Say</option>
+            </select></td><td><div id="i6"></div></td></tr>
+            <tr><td>Email Id</td><td><input type="email" id="emailId" name="emailId"></td><td><div id="i4"></div></td></tr>
+            <tr><td>Phone Number</td><td><input type="number" id="numId" name="mobile" maxlength="10" minlength="10"></td><td><div id="i5"></div></td></tr>
+            <tr><td colspan=2><center><input type="submit"></td></tr>
+        </table>
+        </form> 
+        </div>
+    </body>
+    </html>
