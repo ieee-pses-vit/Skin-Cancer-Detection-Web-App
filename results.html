@@ -1,0 +1,103 @@
+<html>
+<head>
+	<style>
+	#error{display:none;}
+	</style>
+	<style>
+	    /*  body{
+                margin:0;
+                padding:0;
+                background-image: url("http://backgroundcheckall.com/wp-content/uploads/2017/12/background-images-for-registration-form-4.jpg");
+                background-size:cover;
+                background-position: center;
+                font-family: sans-serif; 
+                color: wheat
+            }
+            body:before{
+                content:'';
+                position:fixed;
+                width:100vw;
+                height: 100vh;
+                background-image: url("http://backgroundcheckall.com/wp-content/uploads/2017/12/background-images-for-registration-form-4.jpg");
+                background-position: center;
+                background-repeat:no-repeat;
+                background-attachment: fixed;
+                background-size: cover;
+                 filter:blur(10px);
+            } */
+			.formFill{
+                display: block;
+                
+                /* background:rgba(0,0,0,0.3); */
+                color:brown;
+                top:50%;
+                left:50%;
+                position:absolute;
+                transform: translate(-50%,-50%);
+                box-sizing: border-box;
+                padding:40px 30px;
+            }
+            #print{
+                display: block;
+            }
+            input{
+                background: transparent;
+                border:none;
+                font-size:20px;
+
+            }
+            #tc{
+                font-size:25px;
+                color:brown
+            }
+            body{
+                background-color:antiquewhite;
+            }
+    </style>
+    <script>
+        function setvalue(){
+
+            document.getElementById("nameId").value=sessionStorage.getItem("NAME");
+            document.getElementById("dobId").value=sessionStorage.getItem("DOB");
+            document.getElementById("ageId").value=sessionStorage.getItem("AGE");
+            document.getElementById("genderId").value=sessionStorage.getItem("GENDER");
+            document.getElementById("emailId").value=sessionStorage.getItem("EMAIL");
+            document.getElementById("numId").value=sessionStorage.getItem("MOBILE");
+            //Retrieve Image
+            var dataImage = sessionStorage.getItem('sImage');
+            skinImg = document.getElementById('skinImageId');
+            skinImg.src = "data:image/png;base64," + dataImage;
+            
+            //Retrieve predictions
+            for(var i=1;i<=3;i++){
+                document.getElementById("pred").innerHTML=document.getElementById("pred").innerHTML+sessionStorage.getItem("prediciton"+i)+"<br>";
+            }
+
+
+            
+        }
+        function printFunc(){
+            document.getElementById("print").style.display="none";
+            window.print();
+        }
+        
+    </script>
+</head>
+<body onload="setvalue()">
+        <div class="formFill">
+        <caption><center><h1>Patient Report</h1></center></caption>
+        <table border="0" align="center" cellspacing=0 cellpadding=9>
+            <tr><td id="tc">Name</td><td><input type="text" id="nameId" name="nameId" readonly></td></tr>
+            <tr><td id="tc">DOB</td><td><input type="text" name="dobId" id="dobId" value="" readonly style="color:black;"></td></tr>
+            <tr><td id="tc">Age</td><td><input type="number" id="ageId" name="ageId" readonly></td></tr>
+            <tr><td id="tc">Gender</td><td><input type="text" id="genderId" name="genderId" readonly></td></tr>
+            <tr><td id="tc">Email Id</td><td><input type="email" id="emailId" name="emailId" readonly></td></tr>
+            <tr><td id="tc">Phone Number</td><td><input type="number" id="numId" name="mobile" maxlength="10" minlength="10" readonly></td></tr>
+            <tr><td id="tc">Predicitions</td><td><p id="pred"></p></td></tr>
+            <tr><td id="tc">Skin Image</td><td><img id = "skinImageId" src="" height="100" width="100"></td></tr>
+            <tr></tr>
+            <tr><td colspan=2><center><input style="background-color: brown;border-radius:15px;color:aliceblue"  type="submit" value ="Print PDF" id="print" onclick="printFunc()"></td></tr>
+        </table>
+        </div>
+       </body>
+    </html>
