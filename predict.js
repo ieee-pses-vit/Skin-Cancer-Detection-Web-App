@@ -24,7 +24,7 @@ var model;
 $("#predict-button").click(async function () {
     let image = $("#selected-image").get(0);
     console.log(image);
-    let modelName = $("#model-selector").val();
+    // let modelName = $("#model-selector").val();
     let tensor = tf.fromPixels(image)
     .resizeNearestNeighbor([224,224])
     .toFloat();
