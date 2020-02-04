@@ -1,6 +1,29 @@
 from flask import Flask, render_template, request, jsonify, abort
 from firebase import Firebase
+from random import randint
 # import base64
+literals = "ABCDDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*=':;,.+-"
+def get_token():
+    mixed_literals = ""
+    lower_limit = 0
+    upper_limit = len(literals)
+    happend = set()
+    while len(happend) < upper_limit:
+        arbi_pos = randint(lower_limit,upper_limit-1)
+        if arbi_pos not in happend:
+            happend.add(arbi_pos)
+            mixed_literals += literals[arbi_pos]
+    
+    token_literal_pos = []
+    while len(token_literal_pos) < 23:
+        temp_pos = randint(lower_limit,upper_limit-1)
+        if temp_pos not in token_literal_pos:
+            token_literal_pos.append(temp_pos)
+    token = ""
+    for i in token_literal_pos:
+        token += mixed_literals[i]
+    return token
+
 
 config = {
   "apiKey": "AIzaSyArL9WuBVYY04Nmt519xi08wnF6muZDIao",
@@ -133,7 +156,7 @@ def logging():
         if input_creds['user-id'] in all_users.keys():
             temp = all_users[input_creds['user-id']]
             if input_creds["user-id"]==temp["user-id"] and input_creds["password"] == temp["password"]:
-                tokenId = "abc"
+                tokenId = get_token()
                 response = {"status":"Success","tokenId":tokenId,"message":"tokenId will be refreshed in every two hours."}
                 db.child("users").child(input_creds["user-id"]).update({"tokenId":tokenId})
                 return jsonify(response)    
