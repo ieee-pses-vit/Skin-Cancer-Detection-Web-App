@@ -1,0 +1,148 @@
+<html>
+
+<head>
+
+    <title>Skin-Cancer-Detection</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+        integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+    <meta name="viewport" content="width=device-width. initial-scale=1">
+
+    <style>
+        #selected-image {
+            display: none;
+        }
+
+        #userForm {
+            display: none;
+        }
+
+        body {
+            background-color: antiquewhite;
+        }
+
+        .formFill {
+            display: block;
+            color: brown;
+            position: relative;
+            left: 50%;
+            height: 550px;
+            width: 510px;
+            transform: translate(-50%, -50%);
+
+        }
+    </style>
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <script>
+        function enableImage() {
+            document.getElementById("selected-image").style.display = "block";
+        }
+        function enableForm() {
+            document.getElementById("userForm").style.display = "block";
+        }
+
+    </script>
+</head>
+
+<body>
+    <main>
+        <div class="jumbotron text-center" style="margin-bottom:0;background-color:burlywood;">
+            <h1>Skin Cancer Detection App</h1>
+        </div>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-6">
+                    <input id="image-selector" class="form-control border-0" type="file" onclick="enableImage()"
+                        style="background-color: antiquewhite;">
+                </div>
+                <div class="col-6">
+                    <button id="predict-button" class="btn btn-dark float-right">Predict</button>
+                </div>
+            </div>
+            <hr>
+
+            <div class="row">
+                <div class="col">
+                    <h2 class="ml-3">Predictions</h2>
+                    <ol id="prediction-list"></ol>
+                </div>
+            </div>
+
+            <hr>
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="ml-3">Image</h2>
+                    <img height="224" width="224" id="selected-image" class="ml-3" src="" />
+                </div>
+            </div>
+            <hr>
+
+            <br><br>
+            <div class="row">
+                <div class="col-12">
+                    <button onclick="enableForm()" id="generateForm" class="btn btn-dark float-left "
+                        style="background-color:brown;">Generate Form</button>
+
+                    <button onclick="result()" id="result" class="btn btn-dark float-right"
+                        style="background-color:brown;">Create Report</button>
+                </div>
+            </div>
+
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $("#image-selector").change(function () {
+                let reader = new FileReader();
+                reader.onload = function () {
+                    let dataURL = reader.result;
+
+                    $("#selected-image").attr("src", dataURL);
+                    //$.sessionStorage.setItem("URLS",dataURL);
+                    $("#prediction-list").empty();
+                }
+                let file = $("#image-selector").prop("files")[0];
+                reader.readAsDataURL(file);
+                console.log(file);
+            });
+
+            $("#predict-button").click(function () {
+                let image = $("#selected-image").get(0);
+                console.log(image.src);
+                console.log(typeof(image.src));
+                const url = 'http://127.0.0.1:4568/api/predict';
+
+                // post body data
+                var date_time = new Date();
+                time_stamp = date_time.getDate()+"-"+date_time.getMonth()+"-"+date_time.getFullYear()+"_"+date_time.getHours()+":"+date_time.getMinutes()+":"+date_time.getSeconds();
+                
+                const user = {
+                    user_id: "user1",
+                    user_name: "Shya",
+                    image_data: image.src,
+                    time_stamp: time_stamp
+                };
+
+                // create request object
+                const request = new Request(url, {
+                    method: 'POST',
+                    body: JSON.stringify(user),
+                    headers: new Headers({
+                        'Content-Type': 'application/json'
+                    })
+                });
+
+                // pass request object to `fetch()`
+                fetch(request)
+                    .then(res => res.json())
+                    .then(res => console.log(res));
+            });
+
+        });
+    </script>
+</body>
+
+</html>
